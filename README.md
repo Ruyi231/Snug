@@ -8,13 +8,15 @@
 
 为 UU远程 打造（Windows 版）<br>竖屏原生显示 · 原生手势 · App 资源库 · 适配所有手机 · 应用内自动更新
 
-[![最新版本](https://img.shields.io/github/v/release/nicocart/snug-win?label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&color=blue)](https://github.com/nicocart/snug-win/releases/latest) [![CI](https://github.com/nicocart/snug-win/actions/workflows/ci.yml/badge.svg)](https://github.com/nicocart/snug-win/actions/workflows/ci.yml) [![Release](https://github.com/nicocart/snug-win/actions/workflows/release.yml/badge.svg)](https://github.com/nicocart/snug-win/actions/workflows/release.yml) ![Windows 10/11 x64](https://img.shields.io/badge/Windows-10%20%2F%2011%20x64-0078D6) ![.NET 10 LTS](https://img.shields.io/badge/.NET-10%20LTS-512BD4) [![许可证 MIT](https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF%E8%AF%81-MIT-green)](LICENSE)
+[![最新版本](https://img.shields.io/github/v/release/Ruyi231/Snug?label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&color=blue)](https://github.com/Ruyi231/Snug/releases/latest) [![CI](https://github.com/Ruyi231/Snug/actions/workflows/ci.yml/badge.svg)](https://github.com/Ruyi231/Snug/actions/workflows/ci.yml) [![Release](https://github.com/Ruyi231/Snug/actions/workflows/release.yml/badge.svg)](https://github.com/Ruyi231/Snug/actions/workflows/release.yml) ![Windows 10/11 x64](https://img.shields.io/badge/Windows-10%20%2F%2011%20x64-0078D6) ![.NET 10 LTS](https://img.shields.io/badge/.NET-10%20LTS-512BD4) [![许可证 MIT](https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF%E8%AF%81-MIT-green)](LICENSE)
 
-[下载](#-下载) · [原生体验](#-原生体验) · [App 资源库](#-app-资源库) · [适配](#-适配所有-app-与手机) · [对比](#-与其他方案的对比) · [安装与更新](#-安装与更新) · [使用](#-使用方式) · [限制](#-已知限制) · [开发](#-开发)
+[下载](#-下载) · [修复记录](#修复记录) · [原生体验](#-原生体验) · [App 资源库](#-app-资源库) · [适配](#-适配所有-app-与手机) · [对比](#-与其他方案的对比) · [安装与更新](#-安装与更新) · [使用](#-使用方式) · [限制](#-已知限制) · [开发](#-开发)
 
 </div>
 
 > 1:1 承接并完全跟随上游 macOS 原版 [**zephyr4123/snug**](https://github.com/zephyr4123/snug)（MIT License，`v2.5.0`）的产品体验、状态机与交互逻辑，专为 **Windows 10 / 11 + 网易 UU远程（GameViewer）** 打造。
+
+本仓库基于 Windows 版 [nicocart/snug-win](https://github.com/nicocart/snug-win)，在 [Releases](https://github.com/Ruyi231/Snug/releases) 提供含本仓库修复的安装包。
 
 ---
 
@@ -22,7 +24,7 @@
 
 <img src="Assets/snugwin-logo.png" width="88" align="left" alt="SnugWin 图标">
 
-**SnugWin for Windows** [![最新版本](https://img.shields.io/github/v/release/nicocart/snug-win?label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&color=blue)](https://github.com/nicocart/snug-win/releases/latest)<br>适用于 Windows 10 (2004+) / Windows 11 x64，基于 .NET 10 LTS + WPF 构建<br>CI 自动构建与 SHA-256 校验发布，提供**一键安装包**与**绿色便携包**，[前往 Releases 下载](https://github.com/nicocart/snug-win/releases/latest)
+**SnugWin for Windows**<br>适用于 Windows 10 (2004+) / Windows 11 x64，基于 .NET 10 LTS + WPF 构建<br>GitHub Actions 构建一键安装包与绿色便携包，并生成 SHA-256 校验值。[前往 Releases 下载](https://github.com/Ruyi231/Snug/releases/latest)
 
 <br clear="left">
 
@@ -35,6 +37,13 @@
 | `checksums.txt` | 安全校验 | 所有发布资产的 SHA-256 校验和 |
 
 > 从 `v1.2.0` 起，每个版本都同时提供 `setup.exe` 一键安装包（内置驱动安装与自启选项）和绿色便携 zip。
+
+## 修复记录
+
+### v1.2.1
+
+- 修复 Windows 应用最小化到任务栏后从手机端「正在运行」列表消失的问题。SnugWin 使用窗口恢复后的尺寸筛选最小化窗口。它们会继续显示在列表中，点选即可恢复并移到「Snug 手机屏」。
+- 已在 Windows 11 x64 上验证最小化窗口的识别和恢复，并通过手机端 UU 远程实测。[查看 v1.2.1 发布说明](https://github.com/Ruyi231/Snug/releases/tag/v1.2.1)
 
 ---
 
@@ -115,7 +124,7 @@ UU远程 手机端沿用触控板鼠标逻辑；SnugWin 通过独立高优先级
 
 ### 方式一：一键安装包（推荐）
 
-1. 从 [Releases](https://github.com/nicocart/snug-win/releases/latest) 下载 `SnugWin-vX.Y.Z-win-x64-setup.exe` 并运行；
+1. 从 [本仓库的 Releases](https://github.com/Ruyi231/Snug/releases/latest) 下载 `SnugWin-vX.Y.Z-win-x64-setup.exe` 并运行；
 2. 安装向导内默认勾选「安装 / 校验 `virtual-display-rs 0.3.1` 驱动」，将自动完成压缩包 SHA-256 校验、证书指纹校验（`5DFA7E68997ED52D4B10420407860D1C29B6F427`）与静默安装，并写入 `%ProgramData%\SnugWin\driver-ownership.json` 归属标记（绝不误删你原本自行安装的同款驱动）；
 3. 可按需勾选「创建桌面快捷方式」与「开机静默自启动（后台常驻托盘）」。
 

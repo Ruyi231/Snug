@@ -1,9 +1,9 @@
 <Project>
   <PropertyGroup>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Product>SnugWin</Product>
     <Company>nicocat</Company>
     <Copyright>MIT License · 2026 nicocat</Copyright>
-    <RepositoryUrl>https://github.com/nicocart/snug-win</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Ruyi231/Snug</RepositoryUrl>
   </PropertyGroup>
 </Project>

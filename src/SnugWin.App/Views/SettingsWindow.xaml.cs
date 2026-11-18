@@ -295,7 +295,7 @@ public partial class SettingsWindow : Window
     {
         Process.Start(new ProcessStartInfo
         {
-            FileName = "https://github.com/nicocart/snug-win",
+            FileName = "https://github.com/Ruyi231/Snug",
             UseShellExecute = true
         });
     }

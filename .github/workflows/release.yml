@@ -153,11 +153,12 @@ jobs:
           if ($LASTEXITCODE -eq 0 -and $prev) {
             $range = "$prev..$tag"
             $commits = @(git log --pretty=format:'- %s (`%h`)' $range)
-            $commitsHeader = "自 ``$prev`` 以来的提交："
+            $commitsHeader = "自 ``$prev`` 以来的提交"
+            $compare = "[查看完整差异](https://github.com/$env:GITHUB_REPOSITORY/compare/$prev...$tag)"
           } else {
-            $prev = 'main'
             $commits = @(git log --pretty=format:'- %s (`%h`)' -20 $tag)
-            $commitsHeader = "最近 20 条提交："
+            $commitsHeader = '最近的提交'
+            $compare = ''
           }
           Write-Host "commits: $($commits.Count)"
 
@@ -169,11 +170,16 @@ jobs:
           $fence = '```'
           $tail = @('', '### 校验和', '', ($fence + 'text')) + $lines + @($fence, '')
           $changeLog = (@($commitsHeader, '') + $commits) -join "`r`n"
+          $summaryFile = Join-Path '.github\release-notes' "$tag.md"
+          $summary = if (Test-Path -LiteralPath $summaryFile) {
+            (Get-Content -LiteralPath $summaryFile -Raw -Encoding UTF8).Trim()
+          } else { '' }
 
           $template = Get-Content '.github\release-notes-template.md' -Raw -Encoding UTF8
           $body = $template.Replace('{{VERSION}}', $version)
-          $body = $body.Replace('{{PREVIOUS}}', $prev)
+          $body = $body.Replace('{{SUMMARY}}', $summary)
           $body = $body.Replace('{{COMMITS}}', $changeLog)
+          $body = $body.Replace('{{COMPARE}}', $compare)
           $body = $body + ($tail -join "`r`n")
           Set-Content 'dist\release-notes.md' -Value $body -Encoding UTF8
           Write-Host "release notes: $((Get-Item 'dist\release-notes.md').Length) bytes"

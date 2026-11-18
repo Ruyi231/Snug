@@ -32,8 +32,10 @@ public sealed record PreparedUpdate(
 
 public sealed class AppUpdateService
 {
-    private const string LatestApiUrl = "https://api.github.com/repos/nicocart/snug-win/releases/latest";
-    private const string LatestWebUrl = "https://github.com/nicocart/snug-win/releases/latest";
+    private const string ReleaseRepository = "Ruyi231/Snug";
+    private const string ReleaseWebBase = "https://github.com/" + ReleaseRepository + "/releases";
+    private const string LatestApiUrl = "https://api.github.com/repos/" + ReleaseRepository + "/releases/latest";
+    private const string LatestWebUrl = ReleaseWebBase + "/latest";
 
     private static readonly HttpClient ApiHttp = CreateHttpClient(TimeSpan.FromSeconds(12));
     private static readonly HttpClient DownloadHttp = CreateHttpClient(TimeSpan.FromMinutes(10));
@@ -97,7 +99,7 @@ public sealed class AppUpdateService
             CurrentVersion: current,
             LatestVersion: release.NormalizedVersion,
             ReleaseUrl: string.IsNullOrWhiteSpace(release.HtmlUrl)
-                ? $"https://github.com/nicocart/snug-win/releases/tag/v{release.NormalizedVersion}"
+                ? $"{ReleaseWebBase}/tag/{release.TagName}"
                 : release.HtmlUrl,
             ReleaseNotes: release.Body,
             PackageKind: kind,
@@ -231,7 +233,7 @@ public sealed class AppUpdateService
         if (string.IsNullOrWhiteSpace(tag)) return null;
 
         string ver = AppVersionHelper.Normalize(tag);
-        string baseDl = $"https://github.com/nicocart/snug-win/releases/download/{tag}";
+        string baseDl = $"{ReleaseWebBase}/download/{tag}";
         string selfZip = AppVersionHelper.PreferredAssetName(tag, ReleasePackageKind.SelfContained);
         string fddZip = AppVersionHelper.PreferredAssetName(tag, ReleasePackageKind.FrameworkDependent);
 
