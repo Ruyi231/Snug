@@ -38,11 +38,12 @@ public sealed class WindowService : IWindowControl
         Win32.GetWindowThreadProcessId(hwnd, out int pid);
         if (pid != window.Pid) return Task.FromResult<WindowLook?>(null);
 
-        if (!TryGetVisibleBounds(hwnd, out var bounds))
+        bool minimized = Win32.IsIconic(hwnd);
+        RectD bounds;
+        if (minimized ? !TryGetRestoredBounds(hwnd, out bounds) : !TryGetVisibleBounds(hwnd, out bounds))
             return Task.FromResult<WindowLook?>(null);
 
-        bool minimized = Win32.IsIconic(hwnd);
-        bool fullScreen = IsLikelyFullScreen(hwnd, bounds);
+        bool fullScreen = !minimized && IsLikelyFullScreen(hwnd, bounds);
         return Task.FromResult<WindowLook?>(new WindowLook(bounds, fullScreen, minimized));
     }
 
@@ -258,7 +259,7 @@ public sealed class WindowService : IWindowControl
             bool minimized = Win32.IsIconic(hwnd);
             if (!includeMinimized && minimized) return true;
 
-            if (!IsStandardAppWindow(hwnd)) return true;
+            if (!IsStandardAppWindow(hwnd, minimized)) return true;
 
             string title = WindowInfo.VisibleTitle(Win32.GetWindowTitle(hwnd));
             if (string.IsNullOrEmpty(title)) return true;
@@ -286,15 +287,22 @@ public sealed class WindowService : IWindowControl
             || appId.StartsWith("GameViewer", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool IsStandardAppWindow(IntPtr hwnd)
+    private static bool IsStandardAppWindow(IntPtr hwnd, bool minimized)
     {
         long exStyle = Win32.GetWindowLongPtrW(hwnd, Win32.GWL_EXSTYLE);
         if ((exStyle & Win32.WS_EX_TOOLWINDOW) != 0) return false;
         IntPtr owner = Win32.GetWindow(hwnd, Win32.GW_OWNER);
         if (owner != IntPtr.Zero && (exStyle & Win32.WS_EX_APPWINDOW) == 0) return false;
 
-        if (!Win32.GetWindowRect(hwnd, out var rc)) return false;
-        if (rc.Width <= 40 || rc.Height <= 40) return false;
+        if (minimized)
+        {
+            if (!TryGetRestoredBounds(hwnd, out var restored) || restored.Width <= 40 || restored.Height <= 40)
+                return false;
+        }
+        else if (!Win32.GetWindowRect(hwnd, out var rc) || rc.Width <= 40 || rc.Height <= 40)
+        {
+            return false;
+        }
 
         string cls = Win32.GetWindowClass(hwnd);
         if (cls is "Progman" or "WorkerW" or "Shell_TrayWnd" or "Shell_SecondaryTrayWnd"
@@ -318,6 +326,31 @@ public sealed class WindowService : IWindowControl
     {
         int cloaked = 0;
         return Win32.DwmGetWindowAttribute(hwnd, Win32.DWMWA_CLOAKED, out cloaked, sizeof(int)) == 0 && cloaked != 0;
+    }
+
+    private static bool TryGetRestoredBounds(IntPtr hwnd, out RectD bounds)
+    {
+        bounds = default;
+        var placement = new Win32.WINDOWPLACEMENT { length = (uint)Marshal.SizeOf<Win32.WINDOWPLACEMENT>() };
+        if (!Win32.GetWindowPlacement(hwnd, ref placement)) return false;
+
+        var rect = placement.rcNormalPosition;
+        if (rect.Width <= 0 || rect.Height <= 0) return false;
+
+        // GetWindowPlacement uses workspace coordinates for regular top-level windows.
+        int x = rect.Left;
+        int y = rect.Top;
+        if ((Win32.GetWindowLongPtrW(hwnd, Win32.GWL_EXSTYLE) & Win32.WS_EX_TOOLWINDOW) == 0)
+        {
+            IntPtr monitor = Win32.MonitorFromWindow(hwnd, Win32.MONITOR_DEFAULTTONEAREST);
+            var info = new Win32.MONITORINFOEX { cbSize = (uint)Marshal.SizeOf<Win32.MONITORINFOEX>() };
+            if (monitor == IntPtr.Zero || !Win32.GetMonitorInfoW(monitor, ref info)) return false;
+            x += info.rcWork.Left - info.rcMonitor.Left;
+            y += info.rcWork.Top - info.rcMonitor.Top;
+        }
+
+        bounds = new RectD(x, y, rect.Width, rect.Height);
+        return true;
     }
 
     public static bool TryGetVisibleBounds(IntPtr hwnd, out RectD bounds)
